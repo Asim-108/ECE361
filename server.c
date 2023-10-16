@@ -12,6 +12,15 @@
 #define MAXLINE 1024
 #define SERVERADDRESS "192.168.1.1"
 
+typedef struct packet{
+      unsigned int
+      total_frag;unsigned
+      int frag_no; unsigned
+      int size;
+      char* filename;
+      char filedata[1000];
+}Packet;
+
 // Driver code
 int main(int argc, char* argv[]) {
       int sockfd;

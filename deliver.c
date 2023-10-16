@@ -9,9 +9,19 @@
 #include <netinet/in.h>
 #include <stdbool.h>
 #include <dirent.h>
+#include <time.h>  
             
 #define PORT 8080
 #define MAXLINE 1024
+
+typedef struct packet{
+      unsigned int
+      total_frag;unsigned
+      int frag_no; unsigned
+      int size;
+      char* filename;
+      char filedata[1000];
+}Packet;
             
 // Driver code
 int main(int argc, char* argv[]) {
@@ -21,6 +31,10 @@ int main(int argc, char* argv[]) {
             struct sockaddr_in             servaddr;
             char fileName[MAXLINE];
             bool fileExists = false;
+
+            //initialize clock
+            clock_t start, end;
+            double roundTripTime;
             
             // Creating socket file descriptor
             if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) {
@@ -69,7 +83,33 @@ int main(int argc, char* argv[]) {
                 close(sockfd);
                 exit(0);
             }
-                        
+
+            //creating packet to send to server
+            Packet packet0;
+            packet0.total_frag = 1;
+            packet0.frag_no = 1;
+            packet0.size = sizeof("test data");
+            packet0.filename = "test file";
+            packet0.filedata = "test data";
+
+            //initializing string to hold packet data;
+            char packetString[strlen(itoa(packet0.total_frag)) + strlen(itoa(packet0.frag_no))
+              + strlen(itoa(packet0.size)) + strlen(packet0.filename) + strlen(packet0.filedata) + 5];
+
+            strcat(packetString, itoa(packet0.total_frag));
+            strcat(packetString, ':');
+            strcat(packetString, itoa(packet0.frag_no));
+            strcat(packetString, ':');
+            strcat(packetString, itoa(packet0.size));
+            strcat(packetString, ':');
+            strcat(packetString, packet0.filename);
+            strcat(packetString, ':');
+            strcat(packetString, packet0.filedata);
+            strcat(packetString, "\n");
+
+            //start clock
+            start = clock();
+
             sendto(sockfd, (const char *)ftp, strlen(ftp),
                         MSG_CONFIRM, (const struct sockaddr *) &servaddr,
                                     sizeof(servaddr));
@@ -77,7 +117,12 @@ int main(int argc, char* argv[]) {
             n = recvfrom(sockfd, (char *)buffer, MAXLINE,
                                                 MSG_WAITALL, (struct sockaddr *) &servaddr,
                                                 &len);
+            //end clock
+            end = clock();
+
             buffer[n] = '\0';
+
+            printf("round trip time is: %f seconds\n", ((double)(end - start))/CLOCKS_PER_SEC);
 
             if(buffer[0] == 'y' && buffer[1] == 'e' && buffer[2] == 's' && buffer[3] == '\0'){
                 printf("\nA file transfer can start\n");
