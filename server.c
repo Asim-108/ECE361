@@ -75,6 +75,38 @@ int main(int argc, char* argv[]) {
       }
       printf("Client : %s\n", buffer);
 
+      //////////////////////////////////////////////////////////////////////
+
+      /*
+
+      token = strtok(buffer, ':');
+      for(int i = 0; i < 5; i++){
+            printf("%s", token);
+      }
+
+      for(int i = 0; i < packet.total_frag; i++){
+            while(strtok(buffer[n], ':') != i){
+                  n = recvfrom(sockfd, (char *)buffer, MAXLINE,
+                  MSG_WAITALL, ( struct sockaddr *) &cliaddr,
+                  &len);
+                  buffer[n] = '\0';
+
+                  sendto(sockfd, (const char *)"NACK", strlen("NACK"),
+                  MSG_CONFIRM, (const struct sockaddr *) &cliaddr,
+                  len);
+            }
+            
+            sendto(sockfd, (const char *)"ACK", strlen("ACK"),
+            MSG_CONFIRM, (const struct sockaddr *) &cliaddr,
+                  len);
+
+      }
+
+
+      
+
+      */
+
       close(sockfd);
             
       return 0;
