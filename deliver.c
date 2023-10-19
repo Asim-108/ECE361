@@ -16,8 +16,6 @@
 #define PORT 8080
 #define MAXLINE 1024
 
-//access token:
-//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
 
 typedef struct packet{
       unsigned int  total_frag;
