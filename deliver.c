@@ -52,6 +52,56 @@ char *extractSubstring(const char *inputString, int start, int end) {
     return substring;
 }
 
+char* packetToString(Packet packet0){
+    int strSize[] = { 0, 0, 0 };
+  double temp = (double) packet0.total_frag;
+  while (temp >= 1)
+    {
+      temp /= 10;
+      strSize[0]++;
+    }
+
+  temp = (double) packet0.frag_no;
+  while (temp >= 1)
+    {
+      temp /= 10;
+      strSize[1]++;
+    }
+
+  temp = (double) packet0.size;
+  while (temp >= 1)
+    {
+      temp /= 10;
+      strSize[2]++;
+    }
+
+  char packetString[strSize[0] + strSize[1] + strSize[2] +
+		    strlen (packet0.filename) + strlen (packet0.filedata) +
+		    5];
+
+  char buffer0[strSize[0]];
+  char buffer1[strSize[1]];
+  char buffer2[strSize[2]];
+
+  //itoa
+  snprintf (buffer0, strSize[0] + 1, "%d", packet0.total_frag);
+  snprintf (buffer1, strSize[1] + 1, "%d", packet0.frag_no);
+  snprintf (buffer2, strSize[2] + 1, "%d", packet0.size);
+
+  strcat (packetString, buffer0);
+  strcat (packetString, ":");
+  strcat (packetString, buffer1);
+  strcat (packetString, ":");
+  strcat (packetString, buffer2);
+  strcat (packetString, ":");
+  strcat (packetString, packet0.filename);
+  strcat (packetString, ":");
+  strcat (packetString, packet0.filedata);
+  strcat (packetString, "\0");
+
+  return packetString;
+}
+
 
 
 // Driver code
