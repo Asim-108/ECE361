@@ -67,6 +67,14 @@ int main(int argc, char* argv[]) {
           sendto(sockfd, (const char *)yes, strlen(yes),
             MSG_CONFIRM, (const struct sockaddr *) &cliaddr,
                   len);
+
+            n = recvfrom(sockfd, (char *)buffer, MAXLINE,
+            MSG_WAITALL, ( struct sockaddr *) &cliaddr,
+            &len);
+            buffer[n] = '\0';
+            printf("Client : %s\n", buffer);
+
+            
       }
       else{
           sendto(sockfd, (const char *)no, strlen(no),
