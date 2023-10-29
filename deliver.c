@@ -229,79 +229,7 @@ int main(int argc, char* argv[]) {
         close(sockfd);
         exit(0);
     }
-/*
-    //creating packet to send to server
-    Packet packet0;
-    packet0.total_frag = 1;
-    packet0.frag_no = 1;
-    packet0.size = sizeof("test data");
-    strcpy(packet0.filename, "test file");
-    strcpy(packet0.filedata, "test data");
 
-    // packet0.filename = "test file";
-    // packet0.filedata = "test data";
-    double temp = (double)packet0.total_frag;
-
-    int size0;
-
-    while(temp/10 >= 1){
-        size0++;
-    }
-    int tempInt = packet0.total_frag;
-    char str0[size0];
-    for (int i = size0 - 1; i >= 0; i--) {
-        str0[i] = (char)(tempInt % 10);
-        tempInt/= 10;
-    }
-
-    temp = packet0.frag_no;
-    int size1;
-    while(temp/10 >= 1){
-        size1++;
-    }
-    tempInt = packet0.frag_no;
-    char str1[size1];
-    for (int i = size1 - 1; i >= 0; i--) {
-        str1[i] = (char)(tempInt % 10);
-        tempInt/= 10;
-    }
-
-    temp = packet0.size;
-    int size2;
-    while(temp/10 >= 1){
-        size2++;
-    }
-    tempInt = packet0.size;
-    char str2[size2];
-    for (int i = size2 - 1; i >= 0; i--) {
-        str2[i] = (char)(tempInt % 10);
-        tempInt/= 10;
-    }
-
-    //initializing string to hold packet data;
-    char packetString[size0 + size1 + size2 + strlen(packet0.filename) + strlen(packet0.filedata) + 5];
-
-    // char buffer0[size0];
-    // char buffer1[size1];
-    // char buffer2[size2];
-
-    // itoa(packet0.total_frag, buffer0, 10);
-    // itoa(packet0.frag_no, buffer1, 10);
-    // itoa(packet0.size, buffer2, 10);
-
-    strcat(packetString, str0);
-    strcat(packetString, ":");
-    strcat(packetString, str1);
-    strcat(packetString, ":");
-    strcat(packetString, str2);
-    strcat(packetString, ":");
-    strcat(packetString, packet0.filename);
-    strcat(packetString, ":");
-    strcat(packetString, packet0.filedata);
-    strcat(packetString, "\n");
-
-    printf("%s", packetString);
-*/
     //start clock
     start = clock();
 
