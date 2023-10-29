@@ -75,9 +75,12 @@ char* packetToString(Packet packet0){
       strSize[2]++;
     }
 
-  char packetString[strSize[0] + strSize[1] + strSize[2] +
-		    strlen (packet0.filename) + strlen (packet0.filedata) +
-		    5];
+//   char packetString[strSize[0] + strSize[1] + strSize[2] +
+// 		    strlen (packet0.filename) + strlen (packet0.filedata) +
+// 		    5];
+
+  char *packetString = (char *) malloc ((strSize[0] + strSize[1] + strSize[2] 
+  + strlen (packet0.filename) + strlen (packet0.filedata) + 4) * sizeof (char));
 
   char buffer0[strSize[0]];
   char buffer1[strSize[1]];
