@@ -272,12 +272,9 @@ int main(int argc, char* argv[]) {
         
         for(int packet_number = 0; packet_number < Num_packets; packet_number++){
             packet_sucessfully_sent = false;
-            printf("hello");
             while(packet_sucessfully_sent == false){
-                printf("hello");
-
                 char* testString = packetToString(number[packet_number]);
-                printf("%s",testString);
+                printf("\n%s\n",testString);
                 
                 sendto(sockfd, (const char *)testString, strlen(testString),
                     MSG_CONFIRM, (const struct sockaddr *) &servaddr,
@@ -297,7 +294,7 @@ int main(int argc, char* argv[]) {
                 free(testString);
             }
         }
-        printf("done");
+        printf("done\n");
         
                        
                            

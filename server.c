@@ -106,7 +106,7 @@ int main(int argc, char* argv[]) {
                         &len);
       buffer[n] = '\0';
       if(buffer[0] == 'f' && buffer[1] == 't' && buffer[2] == 'p' && buffer[3] == '\0'){
-            printf("Client : %s\n", buffer);
+            printf("Client : %s\n\n", buffer);
             sendto(sockfd, (const char *)yes, strlen(yes),
             MSG_CONFIRM, (const struct sockaddr *) &cliaddr,
                   len);
@@ -116,7 +116,7 @@ int main(int argc, char* argv[]) {
             MSG_WAITALL, ( struct sockaddr *) &cliaddr,
             &len);
             packet_recv[n] = '\0';
-            printf("Client : %s\n", packet_recv);
+            printf("\nPacket String: %s\n\n", packet_recv);
             Packet packet_temp;
             packet_temp = stringToPacket(packet_recv);
             int Num_packets = 1;
@@ -140,7 +140,7 @@ int main(int argc, char* argv[]) {
                         sendto(sockfd, (const char *)ACK, strlen(yes),
                         MSG_CONFIRM, (const struct sockaddr *) &cliaddr,
                               len);
-                        printf("Client : %shi\n", packet_temp.filedata);
+                        printf("\nData Recieved: %s\n", packet_temp.filedata);
                   }
                   else{
                         sendto(sockfd, (const char *)NACK, strlen(yes),
@@ -157,39 +157,6 @@ int main(int argc, char* argv[]) {
             MSG_CONFIRM, (const struct sockaddr *) &cliaddr,
                   len);
       }
-    
-
-      //////////////////////////////////////////////////////////////////////
-
-      /*
-
-      token = strtok(buffer, ':');
-      for(int i = 0; i < 5; i++){
-            printf("%s", token);
-      }
-
-      for(int i = 0; i < packet.total_frag; i++){
-            while(strtok(buffer[n], ':') != i){
-                  n = recvfrom(sockfd, (char *)buffer, MAXLINE,
-                  MSG_WAITALL, ( struct sockaddr *) &cliaddr,
-                  &len);
-                  buffer[n] = '\0';
-
-                  sendto(sockfd, (const char *)"NACK", strlen("NACK"),
-                  MSG_CONFIRM, (const struct sockaddr *) &cliaddr,
-                  len);
-            }
-            
-            sendto(sockfd, (const char *)"ACK", strlen("ACK"),
-            MSG_CONFIRM, (const struct sockaddr *) &cliaddr,
-                  len);
-
-      }
-
-
-      
-
-      */
 
       close(sockfd);
             
