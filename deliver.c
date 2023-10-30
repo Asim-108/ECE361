@@ -228,14 +228,16 @@ int main(int argc, char* argv[]) {
     }
 
     struct timeval timeout;
-    timeout.tv_sec = 1;
-    timeout.tv_usec = 0;
+    timeout.tv_sec = 0;
+    timeout.tv_usec = 50;
 
     if(setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout)) < 0){
         perror("setsockopt");
         close(sockfd);
         exit(1);
     }
+
+
 
     //start clock
     start = clock();
@@ -250,31 +252,20 @@ int main(int argc, char* argv[]) {
     //end clock
     end = clock();
 
-
-
-
-
-
-
-
-    ///////////////////////////////////////
-
-    
-/*
-    for (int i = 0; i < num packets; i++
-        while (buffer[n] != "ACK"){
-            sleep(rand());
-            sendto(sockfd, (const char *)packetString[i], strlen(packetString[i]),
-                MSG_CONFIRM, (const struct sockaddr *) &servaddr, sizeof(servaddr));
-        }
-
-*/
-    
-    
-
     buffer[n] = '\0';
 
-    printf("round trip time is: %f seconds\n", ((double)(end - start))/CLOCKS_PER_SEC);
+    roundTripTime = (double)(end - start)/CLOCKS_PER_SEC;
+
+    timeout.tv_usec = (int) (roundTripTime * 1000000) * 10;
+
+    printf("round trip time is: %f seconds\n", roundTripTime);
+
+
+
+
+    
+
+
 
     if(buffer[0] == 'y' && buffer[1] == 'e' && buffer[2] == 's' && buffer[3] == '\0'){
         printf("\nA file transfer can start\n%d", Num_packets);
@@ -290,7 +281,7 @@ int main(int argc, char* argv[]) {
 
                 int randNum = rand() % 100;
 
-                if(randNum >= 50){
+                if(randNum >= 80){
                     sendto(sockfd, (const char *)testString, strlen(testString),
                     MSG_CONFIRM, (const struct sockaddr *) &servaddr,
                                 sizeof(servaddr));
