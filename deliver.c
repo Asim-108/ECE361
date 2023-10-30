@@ -111,52 +111,7 @@ int main(int argc, char* argv[]) {
     char tempbuff[100000];
     struct packet number[1000];
     int Num_packets;
-    file = fopen("Text.txt", "r");
-    if(file == NULL){
-        printf("error");
-        return 0;
-    }
-    else{
-        size_t i = 0;
-        int c;
-
-        while ((c = fgetc(file)) != EOF && i < sizeof(tempbuff) - 1) {
-            tempbuff[i++] = (char)c;
-        }
-        //fgets(buffer, sizeof(buffer), file);    
-        int temp_length = strlen(tempbuff);
-        Num_packets = 1;
-        while(temp_length > 1000){
-            temp_length = temp_length - 1000;
-            Num_packets +=1;
-        }
-        int length = strlen(tempbuff);
-        for(int i = 0; i< Num_packets; i++){
-            number[i].total_frag = Num_packets;
-            number[i].frag_no = i+1;
-            if(i == Num_packets-1){
-                number[i].size = length%1000;
-            }
-            else{
-                number[i].size = 1000;
-            }
-            number[i].filename = "Text.txt";
-            if(i == Num_packets-1 && (length <= 1001)){
-                strcpy(number[i].filedata , extractSubstring(tempbuff, 0, length-1 ));
-            }
-            else if(i == Num_packets-1){
-                strcpy(number[i].filedata , extractSubstring(tempbuff, i*1000, length-1 ));
-            }
-            else{
-                strcpy(number[i].filedata , extractSubstring(tempbuff, i*1000, (i+1)*1000-1 ));
-            }
-        }        
-        fclose(file);
-    } 
-    printf("%d", Num_packets);
-    for(int j = 0; j < Num_packets; j++){
-        printf("\n\n\nNum_paket: %d\nPacket_num: %d\nPacket_size: %d\nFilename: %s\nfile_data: %s\n",number[j].total_frag, number[j].frag_no, number[j].size, number[j].filename, number[j].filedata );
-    }
+    
     
 
     
@@ -227,6 +182,54 @@ int main(int argc, char* argv[]) {
         close(sockfd);
         exit(0);
     }
+    else{
+        file = fopen(fileName, "r");
+        if(file == NULL){
+            printf("error");
+            return 0;
+        }
+        else{
+            size_t i = 0;
+            int c;
+
+            while ((c = fgetc(file)) != EOF && i < sizeof(tempbuff) - 1) {
+                tempbuff[i++] = (char)c;
+            }
+            //fgets(buffer, sizeof(buffer), file);    
+            int temp_length = strlen(tempbuff);
+            Num_packets = 1;
+            while(temp_length > 1000){
+                temp_length = temp_length - 1000;
+                Num_packets +=1;
+            }
+            int length = strlen(tempbuff);
+            for(int i = 0; i< Num_packets; i++){
+                number[i].total_frag = Num_packets;
+                number[i].frag_no = i+1;
+                if(i == Num_packets-1){
+                    number[i].size = length%1000;
+                }
+                else{
+                    number[i].size = 1000;
+                }
+                number[i].filename = fileName;
+                if(i == Num_packets-1 && (length <= 1001)){
+                    strcpy(number[i].filedata , extractSubstring(tempbuff, 0, length-1 ));
+                }
+                else if(i == Num_packets-1){
+                    strcpy(number[i].filedata , extractSubstring(tempbuff, i*1000, length-1 ));
+                }
+                else{
+                    strcpy(number[i].filedata , extractSubstring(tempbuff, i*1000, (i+1)*1000-1 ));
+                }
+            }        
+            fclose(file);
+        } 
+        printf("%d", Num_packets);
+        for(int j = 0; j < Num_packets; j++){
+            printf("\n\n\nNum_paket: %d\nPacket_num: %d\nPacket_size: %d\nFilename: %s\nfile_data: %s\n",number[j].total_frag, number[j].frag_no, number[j].size, number[j].filename, number[j].filedata );
+        }
+    }
 
     //start clock
     start = clock();
@@ -268,22 +271,28 @@ int main(int argc, char* argv[]) {
 
     if(buffer[0] == 'y' && buffer[1] == 'e' && buffer[2] == 's' && buffer[3] == '\0'){
         printf("\nA file transfer can start\n");
-
+        bool packet_sucessfully_sent = false;
         //First Send First Packjet To Server
         
-        sendto(sockfd, (const char *)packetToString(number[0]), strlen(packetToString(number[0])),
-                MSG_CONFIRM, (const struct sockaddr *) &servaddr,
-                            sizeof(servaddr));
-
-
         
-        n = recvfrom(sockfd, (char *)ACK_or_NACK, 10,
-                                        MSG_WAITALL, (struct sockaddr *) &servaddr,
-                                        &len);   
+        for(int packet_number = 0; packet_number < Num_packets; packet_number++){
+            packet_sucessfully_sent = false;
+            while(packet_sucessfully_sent){
+                sendto(sockfd, (const char *)packetToString(number[packet_number-1]), strlen(packetToString(number[packet_number-1])),
+                    MSG_CONFIRM, (const struct sockaddr *) &servaddr,
+                                sizeof(servaddr));
+                n = recvfrom(sockfd, (char *)ACK_or_NACK, 10,
+                                            MSG_WAITALL, (struct sockaddr *) &servaddr,
+                                            &len);   
 
-        if(ACK_or_NACK[0] == 'A' && ACK_or_NACK[1] == 'C' && ACK_or_NACK[2] == 'K')){
-            printf("hi");
-        }                
+                if(ACK_or_NACK[0] == 'A' && ACK_or_NACK[1] == 'C' && ACK_or_NACK[2] == 'K'){
+                    packet_sucessfully_sent = true;
+                    packet_number = packet_number +1;
+                } 
+            }
+        }
+        
+                       
                            
                             
 
