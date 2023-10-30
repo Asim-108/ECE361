@@ -81,6 +81,7 @@ char* packetToString(Packet packet0){
 
   char *packetString = (char *) malloc ((strSize[0] + strSize[1] + strSize[2] 
   + strlen (packet0.filename) + strlen (packet0.filedata) + 4) * sizeof (char));
+  packetString[0] = NULL;
 
   char buffer0[strSize[0]];
   char buffer1[strSize[1]];
@@ -115,16 +116,6 @@ int main(int argc, char* argv[]) {
     struct packet number[1000];
     int Num_packets;
     
-    
-
-    
-
-
-
-
-
-
-
 
     int sockfd;
     char buffer[MAXLINE];
@@ -253,6 +244,7 @@ int main(int argc, char* argv[]) {
 
 
 
+
     ///////////////////////////////////////
 
     
@@ -273,15 +265,21 @@ int main(int argc, char* argv[]) {
     printf("round trip time is: %f seconds\n", ((double)(end - start))/CLOCKS_PER_SEC);
 
     if(buffer[0] == 'y' && buffer[1] == 'e' && buffer[2] == 's' && buffer[3] == '\0'){
-        printf("\nA file transfer can start\n");
+        printf("\nA file transfer can start\n%d", Num_packets);
         bool packet_sucessfully_sent = false;
         //First Send First Packjet To Server
-        
+       
         
         for(int packet_number = 0; packet_number < Num_packets; packet_number++){
             packet_sucessfully_sent = false;
-            while(packet_sucessfully_sent){
-                sendto(sockfd, (const char *)packetToString(number[packet_number-1]), strlen(packetToString(number[packet_number-1])),
+            printf("hello");
+            while(packet_sucessfully_sent == false){
+                printf("hello");
+
+                char* testString = packetToString(number[packet_number]);
+                printf("%s",testString);
+                
+                sendto(sockfd, (const char *)testString, strlen(testString),
                     MSG_CONFIRM, (const struct sockaddr *) &servaddr,
                                 sizeof(servaddr));
                 n = recvfrom(sockfd, (char *)ACK_or_NACK, 10,
@@ -290,10 +288,16 @@ int main(int argc, char* argv[]) {
 
                 if(ACK_or_NACK[0] == 'A' && ACK_or_NACK[1] == 'C' && ACK_or_NACK[2] == 'K'){
                     packet_sucessfully_sent = true;
-                    packet_number = packet_number +1;
                 } 
+                else if(ACK_or_NACK[0] == 'N' && ACK_or_NACK[1] == 'A' && ACK_or_NACK[2] == 'C' && ACK_or_NACK[3] == 'K'){
+                    //do nothing since it will automatically resend the packet
+                    packet_sucessfully_sent = false;
+                }
+
+                free(testString);
             }
         }
+        printf("done");
         
                        
                            

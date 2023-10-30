@@ -63,9 +63,12 @@ Packet ret;
 // Driver code
 int main(int argc, char* argv[]) {
       int sockfd;
-      char buffer[MAXLINE];
+      char buffer[10000];
+      char packet_recv[10000];
       char *hello = "Hello from server";
       char *yes = "yes";
+      char *ACK = "ACK";
+      char *NACK = "NACK";
       char* no = "no";
       struct sockaddr_in servaddr, cliaddr;
             
@@ -103,15 +106,49 @@ int main(int argc, char* argv[]) {
                         &len);
       buffer[n] = '\0';
       if(buffer[0] == 'f' && buffer[1] == 't' && buffer[2] == 'p' && buffer[3] == '\0'){
-          sendto(sockfd, (const char *)yes, strlen(yes),
+            printf("Client : %s\n", buffer);
+            sendto(sockfd, (const char *)yes, strlen(yes),
             MSG_CONFIRM, (const struct sockaddr *) &cliaddr,
                   len);
 
-            n = recvfrom(sockfd, (char *)buffer, MAXLINE,
+            //this should read the first packet
+            n = recvfrom(sockfd, (char *)packet_recv, MAXLINE,
             MSG_WAITALL, ( struct sockaddr *) &cliaddr,
             &len);
-            buffer[n] = '\0';
-            printf("Client : %s\n", buffer);
+            packet_recv[n] = '\0';
+            printf("Client : %s\n", packet_recv);
+            Packet packet_temp;
+            packet_temp = stringToPacket(packet_recv);
+            int Num_packets = 1;
+            int total_num_packets = packet_temp.total_frag;
+            sendto(sockfd, (const char *)ACK, strlen(yes),
+            MSG_CONFIRM, (const struct sockaddr *) &cliaddr,
+                  len);
+
+            while(Num_packets != total_num_packets){
+                  memset(packet_recv, 0, sizeof(packet_recv));
+                  
+                  n = recvfrom(sockfd, (char *)packet_recv, MAXLINE,
+                  MSG_WAITALL, ( struct sockaddr *) &cliaddr,
+                  &len);
+                  printf(packet_recv);
+                  packet_recv[n] = '\0';
+                  packet_temp = stringToPacket(packet_recv);
+                  //if in the correct order
+                  if(packet_temp.frag_no == Num_packets +1){
+                        Num_packets = Num_packets+1;
+                        sendto(sockfd, (const char *)ACK, strlen(yes),
+                        MSG_CONFIRM, (const struct sockaddr *) &cliaddr,
+                              len);
+                        printf("Client : %shi\n", packet_temp.filedata);
+                  }
+                  else{
+                        sendto(sockfd, (const char *)NACK, strlen(yes),
+                        MSG_CONFIRM, (const struct sockaddr *) &cliaddr,
+                              len);
+                  }
+            }
+
 
             
       }
@@ -120,7 +157,7 @@ int main(int argc, char* argv[]) {
             MSG_CONFIRM, (const struct sockaddr *) &cliaddr,
                   len);
       }
-      printf("Client : %s\n", buffer);
+    
 
       //////////////////////////////////////////////////////////////////////
 
