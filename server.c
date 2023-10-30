@@ -21,6 +21,45 @@ typedef struct packet{
       char filedata[1000];
 }Packet;
 
+Packet
+stringToPacket (char *packetString)
+{
+  char *token = strtok (packetString, ":");
+
+//   Packet *ret = (Packet *) malloc (sizeof (Packet));
+Packet ret;
+
+  for (int i = 0; i < 5; i++)
+    {
+      if (i == 0)
+	{
+	  ret.total_frag = atoi (token);
+// 	  printf ("%d\n", ret.total_frag);
+	}
+      else if (i == 1)
+	{
+	  ret.frag_no = atoi (token);
+	}
+      else if (i == 2)
+	{
+	  ret.size = atoi (token);
+	}
+      else if (i == 3)
+	{
+	  ret.filename = token;
+//        strcpy (ret->filename, token);
+	}
+      else
+	{
+	  strcpy (ret.filedata, token);
+	}
+
+      token = strtok (NULL, ":");
+    }
+
+  return ret;
+}
+
 // Driver code
 int main(int argc, char* argv[]) {
       int sockfd;
