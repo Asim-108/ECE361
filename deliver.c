@@ -11,6 +11,7 @@
 #include <dirent.h>
 #include <time.h>
 #include <math.h>  
+#include <errno.h>
             
 
 #define PORT 8080
@@ -110,6 +111,7 @@ char* packetToString(Packet packet0){
 
 // Driver code
 int main(int argc, char* argv[]) {
+    srand(time(NULL));
 
     FILE* file;
     char tempbuff[100000];
@@ -156,7 +158,7 @@ int main(int argc, char* argv[]) {
         fileName[length - 1] = '\0';
     }
 
-    DIR* dir = opendir("/homes/c/cheu1444/ECE 361/ECE361");
+    DIR* dir = opendir("/homes/r/rahma877/ece361/ECE361");
     if(dir == NULL){
         perror("Error opening directory");
         return -1;
@@ -225,6 +227,16 @@ int main(int argc, char* argv[]) {
         }
     }
 
+    struct timeval timeout;
+    timeout.tv_sec = 1;
+    timeout.tv_usec = 0;
+
+    if(setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout)) < 0){
+        perror("setsockopt");
+        close(sockfd);
+        exit(1);
+    }
+
     //start clock
     start = clock();
 
@@ -275,23 +287,41 @@ int main(int argc, char* argv[]) {
             while(packet_sucessfully_sent == false){
                 char* testString = packetToString(number[packet_number]);
                 printf("\n%s\n",testString);
-                
-                sendto(sockfd, (const char *)testString, strlen(testString),
+
+                int randNum = rand() % 100;
+
+                if(randNum >= 50){
+                    sendto(sockfd, (const char *)testString, strlen(testString),
                     MSG_CONFIRM, (const struct sockaddr *) &servaddr,
                                 sizeof(servaddr));
+                }
+                
+                
                 n = recvfrom(sockfd, (char *)ACK_or_NACK, 10,
                                             MSG_WAITALL, (struct sockaddr *) &servaddr,
                                             &len);   
 
                 if(ACK_or_NACK[0] == 'A' && ACK_or_NACK[1] == 'C' && ACK_or_NACK[2] == 'K'){
                     packet_sucessfully_sent = true;
+                    printf("ACK successful\n");
                 } 
                 else if(ACK_or_NACK[0] == 'N' && ACK_or_NACK[1] == 'A' && ACK_or_NACK[2] == 'C' && ACK_or_NACK[3] == 'K'){
                     //do nothing since it will automatically resend the packet
                     packet_sucessfully_sent = false;
                 }
+                else if(n == -1){
+                    if(errno == EAGAIN || errno == EWOULDBLOCK){
+                        //packet timeout
+                        packet_sucessfully_sent = false;
+                        printf("ACK not received, resending packet\n");
+                    }
+                    else{
+                        perror("recvfrom");
+                    }
+                }
 
                 free(testString);
+                memset(ACK_or_NACK, 0, sizeof(ACK_or_NACK));
             }
         }
         printf("done\n");
